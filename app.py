@@ -51,27 +51,42 @@ job_description = st.text_area(
 # Analyze button
 if st.button("Analyze Resume", type="primary"):
 
+    # Check if a resume was uploaded
     if resume_file is None:
         st.warning("Please upload your resume.")
 
+    # Check if a job description was entered
     elif not job_description.strip():
         st.warning("Please paste a job description.")
 
+    # Only analyze after BOTH inputs are provided
     else:
-    # Extract text from the uploaded PDF
-        resume_text = extract_resume_text(resume_file)
+        try:
+            # Extract text from PDF
+            resume_text = extract_resume_text(resume_file)
 
-    if not resume_text.strip():
-        st.error("Could not read text from this PDF.")
-    else:
-        st.success("Resume successfully analyzed!")
+            # Check whether text could actually be extracted
+            if not resume_text.strip():
+                st.error(
+                    "Could not read text from this PDF. "
+                    "Please upload a text-based PDF resume."
+                )
 
-        st.write("### Resume Preview")
+            else:
+                st.success("Resume successfully analyzed!")
 
-        with st.expander("View extracted resume text"):
-            st.text(resume_text)
+                st.write("### Resume Preview")
 
-        st.write("### Job Description Received")
-        st.write(job_description)
+                with st.expander("View extracted resume text"):
+                    st.text(resume_text)
 
-        st.info("AI matching will be added in the next step.")
+                st.write("### Job Description Received")
+                st.write(job_description)
+
+                st.info("AI matching will be added in the next step.")
+
+        except Exception:
+            st.error(
+                "Something went wrong while reading your resume. "
+                "Please upload a valid PDF file."
+            )
