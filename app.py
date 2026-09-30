@@ -76,6 +76,50 @@ def analyze_match(resume_text, job_description):
 
     return match_score, sorted(matching_skills), sorted(missing_skills)
 
+def generate_recommendations(match_score, matching_skills, missing_skills):
+    recommendations = []
+
+    if missing_skills:
+        recommendations.append(
+            "Consider learning or adding experience with: "
+            + ", ".join(missing_skills) + "."
+        )
+
+    if "GitHub" in matching_skills or "Git" in matching_skills:
+        recommendations.append(
+            "Highlight projects where you used Git/GitHub "
+            "to collaborate or manage source code."
+        )
+
+    if "REST API" in matching_skills:
+        recommendations.append(
+            "Emphasize projects where you built, tested, "
+            "or integrated REST APIs."
+        )
+
+    if "PyTest" in matching_skills:
+        recommendations.append(
+            "Highlight your automated testing experience with PyTest."
+        )
+
+    if match_score >= 80:
+        recommendations.append(
+            "Your technical skills align strongly with this position. "
+            "Focus on measurable accomplishments in your resume bullets."
+        )
+    elif match_score >= 60:
+        recommendations.append(
+            "Your resume has a solid foundation for this position. "
+            "Strengthening the missing skills could improve your match."
+        )
+    else:
+        recommendations.append(
+            "Consider building projects that demonstrate more of the "
+            "technical skills requested by this position."
+        )
+
+    return recommendations
+
 # Page configuration
 st.set_page_config(
     page_title="AI Resume Job Matcher",
@@ -175,25 +219,17 @@ if st.button("Analyze Resume", type="primary"):
                 else:
                     st.write("No major missing technical skills were detected.")
                 
-                # Recommendation
-                st.subheader("Recommendation")
+                # Personalized recommendations
+                st.subheader("Resume Recommendations")
                 
-                if match_score >= 80:
-                    st.success(
-                        "Strong match. Your resume contains most of the technical "
-                        "skills mentioned in this job description."
-                    )
+                recommendations = generate_recommendations(
+                    match_score,
+                    matching_skills,
+                    missing_skills
+                )
                 
-                elif match_score >= 60:
-                    st.warning(
-                        "Moderate match. Consider emphasizing relevant experience "
-                        "and adding applicable missing skills."
-                    )
-                
-                else:
-                    st.error(
-                        "Low match. This position requires several technical skills "
-                        "that were not found in the resume."
+                for number, recommendation in enumerate(recommendations, start=1):
+                    st.write(f"{number}. {recommendation}")
                     )
 
         except Exception:
