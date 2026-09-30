@@ -232,8 +232,8 @@ if st.button("Analyze Resume", type="primary"):
                     st.write(f"{number}. {recommendation}")
                 )
 
-        except Exception:
-            st.error(
-                "Something went wrong while reading your resume. "
-                "Please upload a valid PDF file."
+                except Exception:
+                    st.error(
+                        "Something went wrong while reading your resume. "
+                        "Please upload a valid PDF file."
             )
