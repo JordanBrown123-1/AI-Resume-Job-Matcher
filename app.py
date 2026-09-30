@@ -16,38 +16,44 @@ def extract_resume_text(pdf_file):
     return resume_text
 
 # Skills that the matcher knows how to identify
-SKILLS = [
-    "python",
-    "java",
-    "javascript",
-    "sql",
-    "html",
-    "css",
-    "react",
-    "aws",
-    "docker",
-    "git",
-    "github",
-    "pytest",
-    "postgresql",
-    "rest api",
-    "rest apis",
-    "ci/cd",
-    "object-oriented programming",
-    "data structures",
-    "algorithms"
-]
-
+SKILLS = {
+    "Python": ["python"],
+    "Java": ["java"],
+    "JavaScript": ["javascript"],
+    "SQL": ["sql"],
+    "HTML": ["html"],
+    "CSS": ["css"],
+    "React": ["react", "react.js", "reactjs"],
+    "AWS": ["aws", "amazon web services"],
+    "Docker": ["docker"],
+    "Git": ["git"],
+    "GitHub": ["github"],
+    "PyTest": ["pytest"],
+    "PostgreSQL": ["postgresql", "postgres"],
+    "REST API": ["rest api", "rest apis", "restful api"],
+    "CI/CD": ["ci/cd", "continuous integration", "continuous delivery"],
+    "Object-Oriented Programming": [
+        "object-oriented programming",
+        "object oriented programming",
+        "oop"
+    ],
+    "Data Structures": ["data structures"],
+    "Algorithms": ["algorithms"]
+}
 
 def find_skills(text):
-    """Find technical skills mentioned in a block of text."""
+    """Find and normalize technical skills mentioned in text."""
 
     text = text.lower()
     found_skills = []
 
-    for skill in SKILLS:
-        if skill in text:
-            found_skills.append(skill)
+    for skill_name, variations in SKILLS.items():
+
+        for variation in variations:
+
+            if variation in text:
+                found_skills.append(skill_name)
+                break
 
     return found_skills
 
@@ -135,9 +141,6 @@ if st.button("Analyze Resume", type="primary"):
 
                 with st.expander("View extracted resume text"):
                     st.text(resume_text)
-
-                st.write("### Job Description Received")
-                st.write(job_description)
 
                 # Compare resume with job description
                 match_score, matching_skills, missing_skills = analyze_match(
