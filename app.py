@@ -59,7 +59,7 @@ if st.button("Analyze Resume", type="primary"):
 
     else:
     # Extract text from the uploaded PDF
-    resume_text = extract_resume_text(resume_file)
+        resume_text = extract_resume_text(resume_file)
 
     if not resume_text.strip():
         st.error("Could not read text from this PDF.")
