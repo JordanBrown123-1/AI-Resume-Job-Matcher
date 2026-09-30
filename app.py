@@ -1,5 +1,6 @@
 import streamlit as st
 from pypdf import PdfReader
+import re
 
 def extract_resume_text(pdf_file):
     reader = PdfReader(pdf_file)
@@ -13,6 +14,61 @@ def extract_resume_text(pdf_file):
             resume_text += text + "\n"
 
     return resume_text
+
+# Skills that the matcher knows how to identify
+SKILLS = [
+    "python",
+    "java",
+    "javascript",
+    "sql",
+    "html",
+    "css",
+    "react",
+    "aws",
+    "docker",
+    "git",
+    "github",
+    "pytest",
+    "postgresql",
+    "rest api",
+    "rest apis",
+    "ci/cd",
+    "object-oriented programming",
+    "data structures",
+    "algorithms"
+]
+
+
+def find_skills(text):
+    """Find technical skills mentioned in a block of text."""
+
+    text = text.lower()
+    found_skills = []
+
+    for skill in SKILLS:
+        if skill in text:
+            found_skills.append(skill)
+
+    return found_skills
+
+
+def analyze_match(resume_text, job_description):
+    """Compare resume skills against skills requested by the job."""
+
+    resume_skills = set(find_skills(resume_text))
+    job_skills = set(find_skills(job_description))
+
+    matching_skills = resume_skills.intersection(job_skills)
+    missing_skills = job_skills.difference(resume_skills)
+
+    if len(job_skills) == 0:
+        match_score = 0
+    else:
+        match_score = round(
+            (len(matching_skills) / len(job_skills)) * 100
+        )
+
+    return match_score, sorted(matching_skills), sorted(missing_skills)
 
 # Page configuration
 st.set_page_config(
@@ -83,7 +139,59 @@ if st.button("Analyze Resume", type="primary"):
                 st.write("### Job Description Received")
                 st.write(job_description)
 
-                st.info("AI matching will be added in the next step.")
+                # Compare resume with job description
+                match_score, matching_skills, missing_skills = analyze_match(
+                    resume_text,
+                    job_description
+                )
+                
+                st.divider()
+                
+                st.header("Resume Match Analysis")
+                
+                # Match score
+                st.subheader("Match Score")
+                st.progress(match_score / 100)
+                st.metric("Overall Match", f"{match_score}%")
+                
+                # Matching skills
+                st.subheader("Matching Skills")
+                
+                if matching_skills:
+                    for skill in matching_skills:
+                        st.write(f"✅ {skill.title()}")
+                else:
+                    st.write("No matching technical skills were found.")
+                
+                # Missing skills
+                st.subheader("Missing Skills")
+                
+                if missing_skills:
+                    for skill in missing_skills:
+                        st.write(f"❌ {skill.title()}")
+                else:
+                    st.write("No major missing technical skills were detected.")
+                
+                # Recommendation
+                st.subheader("Recommendation")
+                
+                if match_score >= 80:
+                    st.success(
+                        "Strong match. Your resume contains most of the technical "
+                        "skills mentioned in this job description."
+                    )
+                
+                elif match_score >= 60:
+                    st.warning(
+                        "Moderate match. Consider emphasizing relevant experience "
+                        "and adding applicable missing skills."
+                    )
+                
+                else:
+                    st.error(
+                        "Low match. This position requires several technical skills "
+                        "that were not found in the resume."
+                    )
 
         except Exception:
             st.error(
