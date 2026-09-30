@@ -236,4 +236,4 @@ if st.button("Analyze Resume", type="primary"):
                     st.error(
                         "Something went wrong while reading your resume. "
                         "Please upload a valid PDF file."
-            )
+                    )
