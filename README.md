@@ -8,7 +8,7 @@ A Python web application that analyzes resumes against job descriptions using we
 
 ## 📸 Screenshot
 
-Add a screenshot of the application here.
+![AI Resume & Job Matcher Results](app-screenshot.png)
 
 ## ✨ Features
 
