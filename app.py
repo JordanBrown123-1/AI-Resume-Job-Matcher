@@ -231,7 +231,7 @@ if st.button("Analyze Resume", type="primary"):
                 for number, recommendation in enumerate(recommendations, start=1):
                     st.write(f"{number}. {recommendation}")
     
-                except Exception:
+        except Exception:
                 st.error(
                     "Something went wrong while reading your resume. "
                     "Please upload a valid PDF file."
