@@ -59,22 +59,61 @@ def find_skills(text):
 
 
 def analyze_match(resume_text, job_description):
-    """Compare resume skills against skills requested by the job."""
 
     resume_skills = set(find_skills(resume_text))
-    job_skills = set(find_skills(job_description))
 
-    matching_skills = resume_skills.intersection(job_skills)
-    missing_skills = job_skills.difference(resume_skills)
+    required_text, preferred_text = split_job_description(
+        job_description
+    )
 
-    if len(job_skills) == 0:
-        match_score = 0
+    required_skills = set(find_skills(required_text))
+    preferred_skills = set(find_skills(preferred_text))
+
+    required_matches = resume_skills.intersection(required_skills)
+    preferred_matches = resume_skills.intersection(preferred_skills)
+
+    missing_required = required_skills.difference(resume_skills)
+    missing_preferred = preferred_skills.difference(resume_skills)
+
+    # Required score
+    if required_skills:
+        required_score = (
+            len(required_matches) / len(required_skills)
+        ) * 100
     else:
-        match_score = round(
-            (len(matching_skills) / len(job_skills)) * 100
-        )
+        required_score = 100
 
-    return match_score, sorted(matching_skills), sorted(missing_skills)
+    # Preferred score
+    if preferred_skills:
+        preferred_score = (
+            len(preferred_matches) / len(preferred_skills)
+        ) * 100
+    else:
+        preferred_score = 100
+
+    # Required qualifications matter more
+    match_score = round(
+        (required_score * 0.75) +
+        (preferred_score * 0.25)
+    )
+
+    matching_skills = required_matches.union(
+        preferred_matches
+    )
+
+    missing_skills = missing_required.union(
+        missing_preferred
+    )
+
+    return (
+        match_score,
+        round(required_score),
+        round(preferred_score),
+        sorted(matching_skills),
+        sorted(missing_skills),
+        sorted(missing_required),
+        sorted(missing_preferred)
+    )
 
 def generate_recommendations(match_score, matching_skills, missing_skills):
     recommendations = []
@@ -158,6 +197,39 @@ def generate_interview_questions(matching_skills, missing_skills):
 
     return questions[:5]
 
+def split_job_description(job_description):
+    """
+    Split the job description into required and preferred sections.
+    """
+
+    text = job_description.lower()
+
+    preferred_markers = [
+        "preferred qualifications:",
+        "preferred qualifications",
+        "preferred skills:",
+        "preferred skills",
+        "nice to have:",
+        "nice to have"
+    ]
+
+    preferred_position = -1
+
+    for marker in preferred_markers:
+        position = text.find(marker)
+
+        if position != -1:
+            preferred_position = position
+            break
+
+    if preferred_position == -1:
+        return job_description, ""
+
+    required_text = job_description[:preferred_position]
+    preferred_text = job_description[preferred_position:]
+
+    return required_text, preferred_text
+
 # Page configuration
 st.set_page_config(
     page_title="AI Resume Job Matcher",
@@ -225,7 +297,15 @@ if st.button("Analyze Resume", type="primary"):
                     st.text(resume_text)
 
                 # Compare resume with job description
-                match_score, matching_skills, missing_skills = analyze_match(
+                (
+                    match_score,
+                    required_score,
+                    preferred_score,
+                    matching_skills,
+                    missing_skills,
+                    missing_required,
+                    missing_preferred
+                ) = analyze_match(
                     resume_text,
                     job_description
                 )
@@ -238,7 +318,23 @@ if st.button("Analyze Resume", type="primary"):
                 st.subheader("Match Score")
                 st.progress(match_score / 100)
                 st.metric("Overall Match", f"{match_score}%")
+
+                # Overall Match
+                st.subheader("Match Score")
+                st.progress(match_score / 100)
+                st.metric("Overall Match", f"{match_score}%")
                 
+                # Required vs Preferred breakdown
+                st.subheader("Qualification Breakdown")
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.metric("Required Skills", f"{required_score}%")
+                
+                with col2:
+                    st.metric("Preferred Skills", f"{preferred_score}%")
+                    
                 # Matching skills
                 st.subheader("Matching Skills")
                 
