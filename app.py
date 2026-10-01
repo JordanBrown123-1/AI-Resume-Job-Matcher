@@ -230,7 +230,6 @@ if st.button("Analyze Resume", type="primary"):
                 
                 for number, recommendation in enumerate(recommendations, start=1):
                     st.write(f"{number}. {recommendation}")
-                )
 
                 except Exception:
                     st.error(
