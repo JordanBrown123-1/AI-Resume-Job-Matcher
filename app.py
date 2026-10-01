@@ -231,7 +231,36 @@ def split_job_description(job_description):
     preferred_text = job_description[preferred_position:]
 
     return required_text, preferred_text
+    
+def calculate_semantic_similarity(resume_text, job_description):
+    """
+    Compare the overall language of the resume and job description
+    using TF-IDF and cosine similarity.
+    """
 
+    try:
+        documents = [
+            resume_text,
+            job_description
+        ]
+
+        vectorizer = TfidfVectorizer(
+            stop_words="english"
+        )
+
+        tfidf_matrix = vectorizer.fit_transform(documents)
+
+        similarity = cosine_similarity(
+            tfidf_matrix[0:1],
+            tfidf_matrix[1:2]
+        )[0][0]
+
+        similarity_score = round(similarity * 100)
+
+        return similarity_score
+
+    except ValueError:
+        return 0
 # Page configuration
 st.set_page_config(
     page_title="AI Resume Job Matcher",
@@ -311,7 +340,12 @@ if st.button("Analyze Resume", type="primary"):
                     resume_text,
                     job_description
                 )
-                
+
+                semantic_score = calculate_semantic_similarity(
+                    resume_text,
+                    job_description
+                )
+                                
                 st.divider()
                 
                 st.header("Resume Match Analysis")
@@ -322,15 +356,26 @@ if st.button("Analyze Resume", type="primary"):
                 st.metric("Overall Match", f"{match_score}%")
                 
                 # Required vs Preferred breakdown
-                st.subheader("Qualification Breakdown")
-                
-                col1, col2 = st.columns(2)
+                st.subheader("Analysis Breakdown")
+                col1, col2, col3 = st.columns(3)
                 
                 with col1:
-                    st.metric("Required Skills", f"{required_score}%")
+                    st.metric(
+                        "Required Skills",
+                        f"{required_score}%"
+                    )
                 
                 with col2:
-                    st.metric("Preferred Skills", f"{preferred_score}%")
+                    st.metric(
+                        "Preferred Skills",
+                        f"{preferred_score}%"
+                    )
+                
+                with col3:
+                    st.metric(
+                        "NLP Similarity",
+                        f"{semantic_score}%"
+                    )
                     
                 # Matching skills
                 st.subheader("Matching Skills")
