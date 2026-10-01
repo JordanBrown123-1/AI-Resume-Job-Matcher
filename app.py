@@ -120,6 +120,44 @@ def generate_recommendations(match_score, matching_skills, missing_skills):
 
     return recommendations
 
+def generate_interview_questions(matching_skills, missing_skills):
+    questions = []
+
+    if "Python" in matching_skills:
+        questions.append(
+            "Tell me about a project where you used Python. "
+            "What problem were you trying to solve?"
+        )
+
+    if "REST API" in matching_skills:
+        questions.append(
+            "Describe your experience building or working with REST APIs."
+        )
+
+    if "Git" in matching_skills or "GitHub" in matching_skills:
+        questions.append(
+            "How have you used Git and GitHub when working on software projects?"
+        )
+
+    if "Object-Oriented Programming" in matching_skills:
+        questions.append(
+            "Can you explain object-oriented programming and give an example "
+            "of how you used it in a project?"
+        )
+
+    if "PyTest" in matching_skills:
+        questions.append(
+            "How have you used PyTest or automated testing in your projects?"
+        )
+
+    if missing_skills:
+        questions.append(
+            f"This position mentions {missing_skills[0]}. "
+            "How would you approach learning a technology you have not used before?"
+        )
+
+    return questions[:5]
+
 # Page configuration
 st.set_page_config(
     page_title="AI Resume Job Matcher",
@@ -230,9 +268,21 @@ if st.button("Analyze Resume", type="primary"):
     
                 for number, recommendation in enumerate(recommendations, start=1):
                     st.write(f"{number}. {recommendation}")
+                # Interview questions
+                st.subheader("Potential Interview Questions")
+                
+                interview_questions = generate_interview_questions(
+                    matching_skills,
+                    missing_skills
+                )
+                
+                for number, question in enumerate(interview_questions, start=1):
+                    st.write(f"{number}. {question}")
     
         except Exception:
                 st.error(
                     "Something went wrong while reading your resume. "
                     "Please upload a valid PDF file."
                 )
+
+               
