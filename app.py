@@ -318,11 +318,6 @@ if st.button("Analyze Resume", type="primary"):
                 st.subheader("Match Score")
                 st.progress(match_score / 100)
                 st.metric("Overall Match", f"{match_score}%")
-
-                # Overall Match
-                st.subheader("Match Score")
-                st.progress(match_score / 100)
-                st.metric("Overall Match", f"{match_score}%")
                 
                 # Required vs Preferred breakdown
                 st.subheader("Qualification Breakdown")
