@@ -221,18 +221,18 @@ if st.button("Analyze Resume", type="primary"):
                 
                 # Personalized recommendations
                 st.subheader("Resume Recommendations")
-                
+    
                 recommendations = generate_recommendations(
                     match_score,
                     matching_skills,
                     missing_skills
                 )
-                
+    
                 for number, recommendation in enumerate(recommendations, start=1):
                     st.write(f"{number}. {recommendation}")
-
-                except Exception:
-                    st.error(
-                        "Something went wrong while reading your resume. "
-                        "Please upload a valid PDF file."
-                    )
+    
+            except Exception:
+                st.error(
+                    "Something went wrong while reading your resume. "
+                    "Please upload a valid PDF file."
+                )
