@@ -376,24 +376,51 @@ if st.button("Analyze Resume", type="primary"):
                         "NLP Similarity",
                         f"{semantic_score}%"
                     )
-                    
-                # Matching skills
-                st.subheader("Matching Skills")
+
+                with st.expander("What do these scores mean?"):
+                    st.write(
+                        "**Overall Match:** Weighted qualification score based on "
+                        "required and preferred technical skills."
+                    )
                 
-                if matching_skills:
-                    for skill in matching_skills:
-                        st.write(f"✅ {skill.title()}")
-                else:
-                    st.write("No matching technical skills were found.")
+                    st.write(
+                        "**Required Skills:** Percentage of detected required "
+                        "technical skills found in your resume."
+                    )
                 
-                # Missing skills
-                st.subheader("Missing Skills")
+                    st.write(
+                        "**Preferred Skills:** Percentage of detected preferred "
+                        "technical skills found in your resume."
+                    )
                 
-                if missing_skills:
-                    for skill in missing_skills:
-                        st.write(f"❌ {skill.title()}")
-                else:
-                    st.write("No major missing technical skills were detected.")
+                    st.write(
+                        "**NLP Similarity:** Uses TF-IDF and cosine similarity to "
+                        "compare the overall language of your resume with the "
+                        "job description."
+                    )
+                
+                # Matching and missing skills side-by-side
+                st.subheader("Skills Analysis")
+                
+                skills_col1, skills_col2 = st.columns(2)
+                
+                with skills_col1:
+                    st.markdown("### ✅ Matching Skills")
+                
+                    if matching_skills:
+                        for skill in matching_skills:
+                            st.write(f"✅ {skill}")
+                    else:
+                        st.write("No matching technical skills found.")
+                
+                with skills_col2:
+                    st.markdown("### ❌ Missing Skills")
+                
+                    if missing_skills:
+                        for skill in missing_skills:
+                            st.write(f"❌ {skill}")
+                    else:
+                        st.write("No major missing technical skills detected.")
                 
                 # Personalized recommendations
                 st.subheader("Resume Recommendations")
@@ -416,7 +443,52 @@ if st.button("Analyze Resume", type="primary"):
                 
                 for number, question in enumerate(interview_questions, start=1):
                     st.write(f"{number}. {question}")
-    
+
+                # Create downloadable analysis report
+                report = f"""
+                AI Resume & Job Matcher
+                =======================
+                
+                Overall Match: {match_score}%
+                Required Skills Match: {required_score}%
+                Preferred Skills Match: {preferred_score}%
+                NLP Similarity: {semantic_score}%
+                
+                MATCHING SKILLS
+                ---------------
+                {chr(10).join(matching_skills)}
+                
+                MISSING SKILLS
+                --------------
+                {chr(10).join(missing_skills)}
+                
+                RESUME RECOMMENDATIONS
+                ----------------------
+                {chr(10).join(
+                    f"{i}. {recommendation}"
+                    for i, recommendation in enumerate(recommendations, start=1)
+                )}
+                
+                POTENTIAL INTERVIEW QUESTIONS
+                -----------------------------
+                {chr(10).join(
+                    f"{i}. {question}"
+                    for i, question in enumerate(interview_questions, start=1)
+                )}
+                """
+                
+                st.divider()
+                
+                st.download_button(
+                    label="📥 Download Analysis Report",
+                    data=report,
+                    file_name="resume_job_analysis.txt",
+                    mime="text/plain"
+                )
+                st.caption(
+                    "This analysis is an estimate based on detected technical skills "
+                    "and text similarity. It is not an official ATS or employer score."
+                )
         except Exception:
                 st.error(
                     "Something went wrong while reading your resume. "
